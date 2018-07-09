@@ -111,7 +111,7 @@ public class TransactionsApiTest {
   @Test
   public void tempTest() throws Exception {
     Wallet w = Wallet.fromBIP39("amused vague melt basic lobster draft they immune creek fix embody match");
-    Transaction tx = w.createSendTX("1R", 1, 10000000);
+    Transaction tx = w.createSendTX("2655711995542512317R", 1, 10000000);
     this.wrapper = new APIWrapper("https://twallet.rise.vision");
     this.wrapper
       .broadcastTransaction(tx);

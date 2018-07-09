@@ -17,16 +17,18 @@ import java.util.Date;
 public class Transaction {
   private static long EPOCH = Date.UTC(2016 - 1900, 4, 24, 17, 0, 0);
 
-
-
   @Builder
-  public Transaction(String recipientId, long fee, long amount, String senderPublicKey, int timestamp, byte type) {
+  public Transaction(String recipientId, long fee, long amount, String senderPublicKey, Integer timestamp, byte type) {
     this.recipientId = recipientId;
     this.fee = fee;
     this.amount = amount;
     this.type = type;
     this.senderPublicKey = senderPublicKey;
-    this.timestamp = timestamp;
+    if (timestamp != null) {
+      this.timestamp = timestamp;
+    } else {
+      this.timestamp = (int) ((new Date().getTime() - EPOCH) / 1000);
+    }
   }
 
   @Getter
@@ -34,7 +36,7 @@ public class Transaction {
   @Getter
   private Long amount;
   @Getter
-  private byte type = 0;
+  private byte type;
   @Getter
   private long fee;
 
@@ -42,7 +44,7 @@ public class Transaction {
   private String id;
   @Getter
   @Setter
-  int timestamp = (int) ((new Date().getTime() - EPOCH) / 1000);
+  int timestamp;
   @Getter
   private String signature;
   @Getter
@@ -50,19 +52,11 @@ public class Transaction {
   @Getter
   private String senderPublicKey;
 
-
-  private void checkOrInit() {
-    if (timestamp == -1) {
-      timestamp = (int) ((new Date().getTime() - EPOCH) / 1000);
-    }
-  }
-
   public byte[] toBytes() {
     return toBytes(false, false);
   }
 
   public byte[] toBytes(boolean skipSignature, boolean skipSecondSignature) {
-    this.checkOrInit();
     ByteBuffer buffer = ByteBuffer.allocate(1000);
     buffer.order(ByteOrder.LITTLE_ENDIAN);
     buffer.put(type);

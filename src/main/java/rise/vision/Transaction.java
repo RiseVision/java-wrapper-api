@@ -1,39 +1,48 @@
 package rise.vision;
 
 import com.google.common.base.Strings;
+import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.abstractj.kalium.keys.SigningKey;
-
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 
 
 public class Transaction {
-  private static long EPOCH = Date.UTC(2016-1900, 4,24,17,0,0);
-
-  public final String recipientId;
-
-  public final Long amount;
-  public final byte type; //SEND;
-  public final long fee;
+  private static long EPOCH = Date.UTC(2016 - 1900, 4, 24, 17, 0, 0);
 
 
-  public Transaction(String recipientId, long fee, long amount) {
+
+  @Builder
+  public Transaction(String recipientId, long fee, long amount, String senderPublicKey, int timestamp, byte type) {
     this.recipientId = recipientId;
     this.fee = fee;
     this.amount = amount;
-    this.type = 0;
+    this.type = type;
+    this.senderPublicKey = senderPublicKey;
+    this.timestamp = timestamp;
   }
+
+  @Getter
+  private String recipientId;
+  @Getter
+  private Long amount;
+  @Getter
+  private byte type = 0;
+  @Getter
+  private long fee;
 
   @Getter
   private String id;
   @Getter
-  int timestamp = -1;
+  @Setter
+  int timestamp = (int) ((new Date().getTime() - EPOCH) / 1000);
   @Getter
   private String signature;
   @Getter
@@ -44,7 +53,7 @@ public class Transaction {
 
   private void checkOrInit() {
     if (timestamp == -1) {
-      timestamp = (int) ((new Date().getTime() - EPOCH)/1000);
+      timestamp = (int) ((new Date().getTime() - EPOCH) / 1000);
     }
   }
 
@@ -60,16 +69,20 @@ public class Transaction {
     buffer.putInt(timestamp);
 
     buffer.put(BaseEncoding.base16().lowerCase().decode(senderPublicKey));
+
     if (!Strings.isNullOrEmpty(recipientId)) {
       byte[] src = new BigInteger(recipientId.substring(0, recipientId.length() - 1)).toByteArray();
       for (int i = 0; i < 8 - src.length; i++) {
         buffer.put((byte) 0); // 0 pad
       }
-      for (byte aByte : src) {
-        buffer.put(aByte);
-      }
+      int start = Math.max(src.length-8, 0);
+      buffer.put(Arrays.copyOfRange(
+        src,
+        start,
+        Math.min(src.length, start + 8))
+      );
     } else {
-      buffer.put(new byte[21]);
+      buffer.put(new byte[8]);
     }
 
     buffer.putLong(amount);
@@ -101,14 +114,8 @@ public class Transaction {
   }
 
 
-  public byte[] getHash()  {
-    try {
-      MessageDigest instance = MessageDigest.getInstance("SHA-256");
-      instance.update(toBytes());
-      return instance.digest();
-    } catch (NoSuchAlgorithmException nse) {
-      throw new RuntimeException(nse);
-    }
+  public byte[] getHash() {
+    return Hashing.sha256().hashBytes(toBytes()).asBytes();
   }
 
   public Transaction sign(SigningKey signingKey) {

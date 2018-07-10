@@ -2,6 +2,7 @@ package rise.vision;
 
 import com.google.common.collect.ImmutableMap;
 import okhttp3.OkHttpClient;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rise.vision.apis.*;
@@ -33,7 +34,7 @@ public class APIWrapper {
    * Will initiate the instance with rise main wallet host and 10secs of timeout
    */
   public APIWrapper() {
-    this("https://wallet.rise.vision", 10);
+    this("https://wallet.rise.vision", 10000);
   }
 
   /**
@@ -42,26 +43,26 @@ public class APIWrapper {
    * @param nodeURL a valid node url with open APIs
    */
   public APIWrapper(String nodeURL) {
-    this(nodeURL, 10);
+    this(nodeURL, 10000);
   }
 
   /**
    * Constructs a new instance with the provided params
    *
    * @param nodeURL        a valid node url with open APIs
-   * @param timeoutSeconds timeout in seconds
+   * @param timeoutMilliseconds timeout in milliseconds
    */
-  public APIWrapper(String nodeURL, long timeoutSeconds) {
-    OkHttpClient okHttpClient = new OkHttpClient.Builder()
-      .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
-      .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
-      .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
+  public APIWrapper(String nodeURL, long timeoutMilliseconds) {
+    OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+      .writeTimeout(timeoutMilliseconds, TimeUnit.MILLISECONDS)
+      .readTimeout(timeoutMilliseconds, TimeUnit.MILLISECONDS)
+      .connectTimeout(timeoutMilliseconds, TimeUnit.MILLISECONDS)
       .build();
 
     retrofit = new Retrofit.Builder()
-      .addConverterFactory(GsonConverterFactory.create())
       .baseUrl(nodeURL)
       .client(okHttpClient)
+      .addConverterFactory(GsonConverterFactory.create())
       .build();
 
     blocksAPI = this.retrofit.create(Blocks.class);
@@ -82,7 +83,11 @@ public class APIWrapper {
   public Transaction broadcastTransaction(Transaction tx) throws IOException {
     PostTransaction body = new PostTransaction(tx);
     this.buildTransportHeaders();
-    APIResponse result = this.transportAPI.postTransaction(this.transportHeaders, body).execute().body();
+    Response<APIResponse> execute = this.transportAPI.postTransaction(this.transportHeaders, body).execute();
+    if (!execute.isSuccessful()) {
+      throw new RuntimeException("Error performing request " + execute.message());
+    }
+    APIResponse result = execute.body();
     if (!result.success) {
       throw new RuntimeException("Failure " + result.error);
     }

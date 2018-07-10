@@ -2,6 +2,16 @@
 
 Through this library you'll be able to interact with the RISE blockchain.
 
+# Installation
+
+Import it using directions you can find here: [jitpack](https://jitpack.io/#RiseVision/java-wrapper-api/1.0.0)
+
+You may need to have `sodium` installed. If you're on ubuntu just issue the following commands:
+```bash
+sudo apt-get install libsodium-dev
+
+```
+
 # Usage
 
 The main classes are **Wallet** & **Transaction** & **APIWrapper**.

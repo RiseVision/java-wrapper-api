@@ -10,6 +10,9 @@ import rise.vision.apis.responses.transactions.TransactionsResponse;
 
 import java.util.Map;
 
+/**
+ * Transport API
+ */
 public interface Transport {
 
   @POST("/peer/transactions")

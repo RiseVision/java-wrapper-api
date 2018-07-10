@@ -7,6 +7,9 @@ import retrofit2.http.QueryMap;
 import rise.vision.apis.responses.blocks.*;
 import java.util.Map;
 
+/**
+ * Blocks API
+ */
 public interface Blocks {
 
   @GET("/api/blocks/getFees")

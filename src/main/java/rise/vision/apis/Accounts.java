@@ -9,6 +9,9 @@ import rise.vision.beans.Delegate;
 
 import java.util.List;
 
+/**
+ * Accounts API
+ */
 public interface Accounts {
   class AccountResponse extends APIResponse {
     public Account account;

@@ -112,6 +112,10 @@ public class Transaction {
     return Hashing.sha256().hashBytes(toBytes()).asBytes();
   }
 
+  public Transaction sign(Wallet wallet) {
+    return this.sign(wallet.getSigningKey());
+  }
+
   public Transaction sign(SigningKey signingKey) {
     this.senderPublicKey = BaseEncoding.base16().lowerCase().encode(signingKey.getVerifyKey().toBytes());
     byte[] hash = getHash();

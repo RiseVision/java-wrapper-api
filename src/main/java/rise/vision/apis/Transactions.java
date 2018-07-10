@@ -10,6 +10,9 @@ import rise.vision.apis.responses.transactions.TransactionsResponse;
 
 import java.util.Map;
 
+/**
+ * Transactions API
+ */
 public interface Transactions {
 
   @GET("/api/transactions/get")

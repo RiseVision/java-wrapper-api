@@ -16,7 +16,7 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'java-api-wrapper'
+rootProject.name = 'rise-api-wrapper'
 buildscript {
     repositories {
         jcenter()

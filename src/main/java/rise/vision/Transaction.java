@@ -18,7 +18,8 @@ public class Transaction {
   private static long EPOCH = Date.UTC(2016 - 1900, 4, 24, 17, 0, 0);
 
   @Builder
-  public Transaction(String recipientId, long fee, long amount, String senderPublicKey, Integer timestamp, byte type) {
+  public Transaction(String senderId, String recipientId, long fee, long amount, String senderPublicKey, Integer timestamp, byte type) {
+    this.senderId = senderId;
     this.recipientId = recipientId;
     this.fee = fee;
     this.amount = amount;
@@ -31,6 +32,8 @@ public class Transaction {
     }
   }
 
+  @Getter
+  private String senderId;
   @Getter
   private String recipientId;
   @Getter

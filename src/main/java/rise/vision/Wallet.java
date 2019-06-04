@@ -60,6 +60,7 @@ public class Wallet {
     return Transaction.builder()
       .fee(fee)
       .amount(amount)
+      .senderId(this.address)
       .recipientId(to)
       .build()
       .sign(this.signingKey);
